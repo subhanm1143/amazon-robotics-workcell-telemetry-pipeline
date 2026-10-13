@@ -1,0 +1,24 @@
+# Every AWS service this project touches (Kinesis, S3, IAM) runs against
+# LocalStack. Flink itself needs no container: PyFlink's local execution
+# environment starts an embedded mini cluster in-process when a job script
+# runs directly, the same way `python -m pytest` needs no separate server.
+services:
+  localstack:
+    image: localstack/localstack:3.8
+    environment:
+      SERVICES: kinesis,s3,iam
+      DEFAULT_REGION: us-east-1
+      KINESIS_SHARD_LIMIT: "100"
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack-data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      retries: 20
+
+volumes:
+  localstack-data:
