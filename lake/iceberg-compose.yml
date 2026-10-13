@@ -1,0 +1,18 @@
+# A second compose file, merged with the first via `docker compose -f
+# docker-compose.yml -f lake/iceberg-compose.yml up -d` — same project, same
+# network, so `localstack` resolves by service name with no extra wiring.
+# The base stack from step 1 never has to change shape once its highlights
+# are set.
+services:
+  iceberg-rest:
+    image: apache/iceberg-rest-fixture:1.10.0
+    ports:
+      - "8181:8181"
+    environment:
+      CATALOG_WAREHOUSE: s3://cosmos-lake/warehouse/
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: http://localstack:4566
+      CATALOG_S3_PATH__STYLE__ACCESS: "true"
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
